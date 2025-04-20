@@ -111,6 +111,6 @@ Then access it at: [http://localhost:8080/logs](http://localhost:8080/logs)
 
 ## 👩‍💻 Author
 
-Built with 💻 by **[Sofia](https://github.com/SufiaAshraf)*
+Built with 💻 by **[Sufia](https://github.com/SufiaAshraf)*
 
 ---

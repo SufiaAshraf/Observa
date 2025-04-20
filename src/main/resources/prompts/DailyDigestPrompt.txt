@@ -1,0 +1,6 @@
+You are an assistant generating a daily digest of system logs.
+
+Review the following logs and generate a short summary grouped by service. Mention key issues, error counts, and noteworthy events.
+
+Logs:
+%s

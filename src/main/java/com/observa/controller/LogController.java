@@ -52,7 +52,7 @@ public class LogController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LogResponse>> getLogs(@RequestParam(required = false) String Service, @RequestParam(required = false) String level) {
+    public ResponseEntity<List<LogResponse>> getLogs(@RequestParam(value = "service", required = false) String Service, @RequestParam(value = "level", required = false) String level) {
         List<LogMessage> logs = logStorage.getFiltered(Service, level);
         logger.debug("Returned {} log(s) for service='{}' level='{}'", logs.size(), Service, level);
         // Convert LogMessage → LogResponse

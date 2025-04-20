@@ -1,0 +1,6 @@
+You are an expert log analyst. Review the following logs from the "%s" service over the last %d minutes.
+
+Based on the log patterns, what is the most likely root cause of the issue? Keep it concise, technical, and insightful.
+
+Logs:
+%s

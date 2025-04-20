@@ -1,10 +1,9 @@
 #!/bin/bash
-
-for i in {1..1050}
+for i in {1..10}
 do
   curl -s -X POST http://localhost:8080/logs \
   -H "Content-Type: application/json" \
-  -d "{\"service\":\"test-service\",\"level\":\"INFO\",\"message\":\"Log number $i\"}" &
+  -d "{\"service\":\"retry-test\",\"level\":\"INFO\",\"message\":\"Log $i\"}" &
 done
 
 wait

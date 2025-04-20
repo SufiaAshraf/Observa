@@ -20,13 +20,13 @@ public class LogConsumer {
     private LogStorage logStorage;
 
     @PostConstruct
-    public void startConsumer() {
+    public void startConsumer() throws InterruptedException {
         Thread consumerThread = new Thread(() -> {
             while (true) {
                 try{
                     LogMessage logMessage = logQueue.dequeue();
                     logStorage.store(logMessage);
-                    logger.info("Stored log: {}", logMessage.getMessage());
+                    logger.info("Stored log: {}, {}", logMessage.getId(), logMessage.getMessage());
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     System.out.println("Consumer thread interrupted");

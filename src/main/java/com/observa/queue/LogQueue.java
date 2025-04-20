@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static com.observa.util.AppConstants.LOG_QUEUE_MAX_CAPACITY;
+
 /**
  * Visual Analogy
  * 🧑‍💻 API (Producer)
@@ -29,8 +31,7 @@ public class LogQueue {
     // ------ The client will stay loading (waiting for HTTP response)
     // ------ Can cause thread starvation in high load situations
     // For now we will set a Maximum capacity and use queue.offer() which is non blocking for enqueue operation
-    private static final int MAX_CAPACITY = 10000;
-    private final BlockingQueue<LogMessage> queue = new LinkedBlockingQueue<>(MAX_CAPACITY);
+    private final BlockingQueue<LogMessage> queue = new LinkedBlockingQueue<>(LOG_QUEUE_MAX_CAPACITY);
 
     // Enqueue operation: Adds a log message to the queue
     public boolean enqueue(LogMessage logMessage) {

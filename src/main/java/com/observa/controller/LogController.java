@@ -4,6 +4,8 @@ import com.observa.dto.LogRequest;
 import com.observa.dto.LogResponse;
 import com.observa.model.LogMessage;
 import com.observa.queue.LogQueue;
+import com.observa.queue.RetryQueue;
+import com.observa.service.LogEnqueueService;
 import com.observa.storage.LogStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,12 @@ public class LogController {
     @Autowired
     private LogStorage logStorage;
 
+    @Autowired
+    private LogEnqueueService logEnqueueService;
+
+    @Autowired
+    private RetryQueue retryQueue;
+
     @PostMapping
     public ResponseEntity<String> receiveLog(@RequestBody LogRequest request) {
         LogMessage logMessage = new LogMessage();
@@ -32,14 +40,15 @@ public class LogController {
         logMessage.setLevel(request.getLevel());
         logMessage.setMessage(request.getMessage());
         logMessage.setTimestamp(System.currentTimeMillis());
-
-        boolean success = logQueue.enqueue(logMessage);
-        if (!success) {
-            logger.warn("Rejected log message {}", logMessage);
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too Many Request.Try Again later");
+        try {
+            logEnqueueService.enqueueWithRetry(logMessage);
+            return ResponseEntity.ok("Log received.");
+        } catch (IllegalStateException ex) {
+            retryQueue.add(logMessage);
+            logger.warn("Log added to retry queue after retry failure: {}", logMessage);
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body("Temporarily overloaded. Retrying....");
         }
-        logger.debug("Log enqueued for processing: {}", logMessage);
-        return ResponseEntity.ok("Log enqueued for processing");
     }
 
     @GetMapping

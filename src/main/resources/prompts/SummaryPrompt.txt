@@ -1,0 +1,5 @@
+You are a log summarizer. Summarize the following logs from the %s service in 2-3 sentences:
+
+%s
+
+Provide a clear, plain-English summary.

@@ -1,0 +1,11 @@
+You are a log analysis assistant. For the following log, return a JSON with classification, summary, and whether it's anomalous.
+
+Log:
+"%s"
+
+Respond in this format:
+{
+  "classification": "...",
+  "summary": "...",
+  "anomalous": true/false
+}

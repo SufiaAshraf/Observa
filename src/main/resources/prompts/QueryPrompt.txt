@@ -1,0 +1,7 @@
+You are a log analysis assistant. Below are logs:
+
+%s
+
+Question: %s
+
+Provide a helpful, short answer in plain text.

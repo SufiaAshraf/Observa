@@ -1,130 +1,92 @@
-# 📊 Observa - Lightweight Log Aggregation System
+# 🛠️ Observa: Lightweight Log Aggregation + AI Insights
 
-**Observa** is a minimal, extensible log aggregation and monitoring system inspired by Splunk. It uses a message queue-based architecture with built-in retry logic, in-memory storage, and simple REST APIs for ingestion and retrieval.
+**Observa** is a minimalist, production-ready log aggregation system inspired by tools like Splunk. It supports log ingestion via API, in-memory storage, filtering, retry logic, and now integrates powerful AI-driven insights and alerting features using open-source LLMs.
 
 ---
 
 ## 🚀 Features
 
-- ✅ **POST /logs**: Submit log entries
-- ✅ **GET /logs**: Retrieve logs with optional filtering by `service` and `level`
-- ✅ **Asynchronous Queue Processing**: Logs are enqueued and consumed in the background
-- ✅ **Retry Logic**: If the main queue is full, logs are retried 3 times before falling back
-- ✅ **Retry Queue**: Unprocessed logs are saved in a secondary queue for background retry
-- ✅ **UUID-based Log IDs**: Each log is assigned a unique ID for traceability
-- ✅ **Queue Monitoring Logs**: Periodic logging of queue and retry queue size
-- ✅ **Spring Boot + Java 19**: Modern, maintainable stack
+### 🔄 Core Log System
+- `POST /logs` — Send logs to system
+- `GET /logs` — Retrieve logs (with filters: `service`, `level`)
+- Built-in **Blocking Queue** with retry queue
+- **In-memory log storage** with modular storage interface
+- Unique `requestId` tracking in every API call
+
+### 🧠 AI-Powered Capabilities
+- `POST /logs/summary` — Summarize logs using local LLM (Mistral)
+- `POST /logs/root-cause` — Estimate root cause from recent failures
+- `POST /logs/chat` — Chat with your logs ("What happened in auth-service yesterday?")
+
+### 🚨 Alerting & Metrics
+- `POST /alerts/rules` — Add alert rule in natural language
+- `GET /alerts/triggered` — View triggered alerts
+- `GET /logs/metrics` — View per-service log stats
+- `GET /logs/daily-digest` — Daily AI summary of logs
 
 ---
 
-## 📦 Technology Stack
+## 📂 Project Structure
 
-- Java 19
-- Spring Boot 3.2
-- Spring Retry
-- Lombok
-- Maven
+```
+com/
+└── observa/
+    ├── controller/        # REST endpoints
+    ├── service/           # Business logic
+    ├── storage/           # In-memory log store
+    ├── queue/             # LogQueue and RetryQueue
+    ├── model/             # LogMessage, AlertRule etc.
+    ├── dto/               # Request and response DTOs
+    ├── filter/            # RequestIdFilter
+    ├── util/              # PromptLoader and utilities
+    ├── prompts/           # AI prompt templates
+    └── ObservaApplication.java
+```
 
 ---
 
-## 🧪 Sample API Usage
+## 📬 API Reference
 
-### ➕ POST `/logs`
+| Endpoint | Method | Sample Request | Sample Response |
+|----------|--------|----------------|-----------------|
+| `/logs` | POST | `{ "service": "auth-service", "level": "ERROR", "message": "JWT expired" }` | `"Log received."` |
+| `/logs` | GET | `/logs?service=auth-service&level=ERROR` | `[ { ... LogMessage } ]` |
+| `/logs/summary` | POST | `{ "service": "payment-service" }` | `"Summary of log activity in payment-service..."` |
+| `/logs/root-cause` | POST | `{ "service": "inventory-service" }` | `"Likely root cause: database latency..."` |
+| `/logs/chat` | POST | `{ "query": "What happened in auth-service yesterday?" }` | `"There were 3 login failures and a token mismatch..."` |
+| `/alerts/rules` | POST | `{ "service": "payment-service", "level": "ERROR", "threshold": 3, "windowMinutes": 10 }` | `"Alert rule added"` |
+| `/alerts/triggered` | GET |  — | `[ { "service": "payment-service", "level": "ERROR", "message": "Triggered: 4 logs in 10 min" } ]` |
+| `/logs/metrics` | GET | — | `{ "auth-service": { "INFO": 10, "ERROR": 5 }, ... }` |
+| `/logs/daily-digest` | GET | — | `"Yesterday's summary: 5 auth failures, 2 payment errors..."` |
 
-Submit a new log:
+---
+
+## 🔁 Retry Queue
+
+If the log queue is full, logs are pushed to a retry queue. Background worker retries every 2s.
+
+---
+
+## 🧠 Local LLM Setup (Mistral)
+
+You can run this app with [Ollama](https://ollama.com) and the `mistral` model:
 
 ```bash
-curl -X POST http://localhost:8080/logs \
--H "Content-Type: application/json" \
--d '{
-  "service": "auth-service",
-  "level": "ERROR",
-  "message": "Token validation failed"
-}'
+ollama run mistral
 ```
 
-#### ✅ Response:
-
-```text
-200 OK
-Log received.
-```
-
-#### ❗ Possible Error:
-
-```text
-429 Too Many Requests
-Temporarily overloaded. Log added to retry queue.
-```
+App will call Ollama's API on `http://localhost:11434`.
 
 ---
 
-### 🔍 GET `/logs`
+## 🌅 Future Scope
 
-Retrieve all logs:
-
-```bash
-curl http://localhost:8080/logs
-```
-
-Filter logs by service:
-
-```bash
-curl "http://localhost:8080/logs?service=auth-service"
-```
-
-Filter logs by service and level:
-
-```bash
-curl "http://localhost:8080/logs?service=auth-service&level=ERROR"
-```
+- Save logs in persistent DB (Postgres, Mongo)
+- Web UI for visualization
+- Alerts via Email / Slack
+- Schedule-based insights & metrics
+- Fine-tuned log classification models
 
 ---
 
-## 📘 Log Data Structure
-
-```json
-{
-  "id": "18cfa374-91fa-4a7e-8124-4b75cfddf602",
-  "service": "auth-service",
-  "level": "ERROR",
-  "message": "Invalid credentials",
-  "timestamp": 1745136251146
-}
-```
-
----
-
-## 🔮 Future Scope
-
-- 📈 Persistent storage (MongoDB, PostgreSQL)
-- 📊 Frontend dashboard using React
-- 🔁 Dead letter queue for permanently failed logs
-- 🧠 Alerting & anomaly detection engine
-- 📦 Dockerization and cloud deployment
-- 📥 Log forwarding via Kafka or RabbitMQ
-- 🔐 Auth + API rate limiting
-
----
-
-## 🛠️ Setup Instructions
-
-1. Clone the repo:
-```bash
-git clone https://github.com/yourusername/observa.git
-cd observa
-```
-
-2. Build and run:
-```bash
-mvn clean install
-mvn spring-boot:run
-```
-
-3. Test APIs using `curl` or Postman
-
----
-
-## 🙌 Maintained by
-
-**Sufia** – Senior Software Engineer
+## 👩‍💻 Built by @Sufia as a system design + AI exploration ✨

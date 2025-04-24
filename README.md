@@ -1,6 +1,6 @@
 # 🛠️ Observa: Lightweight Log Aggregation + AI Insights
 
-**Observa** is a minimalist, production-ready log aggregation system inspired by tools like Splunk. It supports log ingestion via API, in-memory storage, filtering, retry logic, and now integrates powerful AI-driven insights and alerting features using open-source LLMs.
+**Observa** is a minimalist, log aggregation system inspired by tools like Splunk. It supports log ingestion via API, in-memory storage, filtering, retry logic, and now integrates powerful AI-driven insights and alerting features using open-source LLMs.
 
 ---
 
